@@ -63,4 +63,31 @@ app.get("/janken", (req, res) => {
   res.render( 'janken', display );
 });
 
+// ---- ここから /janken2（ラジオボタン版）----
+app.get("/janken2", (req, res) => {
+  const hand = req.query.hand;
+  let win = Number( req.query.win ) || 0;
+  let total = Number( req.query.total ) || 0;
+  console.log( {hand, win, total} );
+
+  const hands = ['グー', 'チョキ', 'パー'];
+  const yourIdx = hands.indexOf( hand );
+  // 手が選ばれていない（直接URLを開いた等）場合は入力ページへ戻す
+  if( yourIdx === -1 ) return res.redirect( '/public/janken2.html' );
+
+  const cpuIdx = Math.floor( Math.random() * 3 );
+  const cpu = hands[cpuIdx];
+
+  // 0:あいこ 1:負け 2:勝ち （グー=0, チョキ=1, パー=2）
+  const diff = ( yourIdx - cpuIdx + 3 ) % 3;
+  let judgement = '';
+  if( diff === 0 ) judgement = 'あいこ';
+  else if( diff === 2 ) { judgement = '勝ち'; win += 1; }
+  else judgement = '負け';
+  total += 1;
+
+  res.render( 'janken2', { your: hand, cpu: cpu, judgement: judgement, win: win, total: total } );
+});
+// ---- ここまで ----
+
 app.listen(8080, () => console.log("Example app listening on port 8080!"));
